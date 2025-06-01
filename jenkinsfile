@@ -1,11 +1,11 @@
 pipeline{
     agent any
     tools{
-        jdk 'jdk17'
-        nodejs 'node23'
+        jdk 'jdk17-104'
+        nodejs '104-node23'
     }
     environment {
-        SCANNER_HOME=tool 'sonar-scanner'
+        SCANNER_HOME=tool '104-sonar-scanner'
     }
     stages {
         stage('clean workspace'){
@@ -15,12 +15,12 @@ pipeline{
         }
         stage('Checkout from Git'){
             steps{
-                git 'https://github.com/KastroVKiran/DevOps-Project-Swiggy.git'
+                git 'https://github.com/bkbala3710/104-DevOps-Sample-Swiggy-page.git'
             }
         }
         stage("Sonarqube Analysis "){
             steps{
-                withSonarQubeEnv('sonar-server') {
+                withSonarQubeEnv('104-sonar-server') {
                     sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Swiggy \
                     -Dsonar.projectKey=Swiggy '''
                 }
@@ -29,7 +29,7 @@ pipeline{
         stage("quality gate"){
            steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token' 
+                    waitForQualityGate abortPipeline: false, credentialsId: '104-sonar-token' 
                 }
             } 
         }
@@ -40,7 +40,7 @@ pipeline{
         }
         stage('OWASP FS SCAN') {
             steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: '104-DP-Check'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
@@ -52,10 +52,10 @@ pipeline{
         stage("Docker Build & Push"){
             steps{
                 script{
-                   withDockerRegistry(credentialsId: 'docker-creds', toolName: 'docker'){   
+                   withDockerRegistry(credentialsId: '104-docker-creds', toolName: '104-docker'){   
                        sh "docker build -t swiggy ."
-                       sh "docker tag swiggy kastrov/swiggy:latest "
-                       sh "docker push kastrov/swiggy:latest "
+                       sh "docker tag swiggy bkbala3710/swiggy:latest "
+                       sh "docker push bkbala3710/swiggy:latest "
                     }
                 }
             }
